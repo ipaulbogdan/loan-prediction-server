@@ -3,11 +3,11 @@ package com.idorasi.loanprediction.utils;
 public class PredictionResponse {
 
     private String response;
-    private double accuracy;
+    private String accuracy;
 
     public PredictionResponse(String response, double accuracy) {
         this.response = response;
-        this.accuracy = accuracy;
+        this.accuracy = accuracy + "%";
     }
 
 
@@ -15,7 +15,7 @@ public class PredictionResponse {
         return response;
     }
 
-    public double getAccuracy() {
+    public String getAccuracy() {
         return accuracy;
     }
 
@@ -23,7 +23,7 @@ public class PredictionResponse {
     public String toString() {
         return "PredictionResponse{" +
                 "response='" + response + '\'' +
-                ", accuracy=" + accuracy +
+                ", accuracy=" + accuracy + "%"+
                 '}';
     }
 }

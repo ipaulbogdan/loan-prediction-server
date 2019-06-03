@@ -3,22 +3,21 @@ package com.idorasi.loanprediction;
 import com.idorasi.loanprediction.utils.PredictionResponse;
 import com.idorasi.loanprediction.utils.TestData;
 import com.idorasi.loanprediction.utils.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.NominalPrediction;
-import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomTree;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
-
 import javax.annotation.PostConstruct;
 
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class LoanController {
 
@@ -28,7 +27,7 @@ public class LoanController {
 
 
 
-    @PostMapping("/load")
+    @PostConstruct
     public ResponseEntity<String> loadData() {
 
         try {
@@ -39,24 +38,23 @@ public class LoanController {
             trainingData.setClassIndex(trainingData.numAttributes() - 1);
             cls.buildClassifier(trainingData);
 
-            TestData.initiateTestData();
-            testData = TestData.testData;
-
             eval = new Evaluation(trainingData);
         }catch (Exception e){
-            return ResponseEntity.badRequest().body("Loading dataset failed!");
+            return new ResponseEntity<>("Failed to load data set", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
-        return ResponseEntity.ok("Dataset successfully loaded!");
+        return new ResponseEntity<>("Data set loaded successfully",HttpStatus.OK);
     }
 
 
-    @GetMapping("/predict")
+    @PostMapping("/predict")
     public ResponseEntity<PredictionResponse> predictLoan(@RequestBody User user) throws Exception {
 
         PredictionResponse response;
 
+        TestData.initiateTestData();
+        testData = TestData.testData;
         testData.add(user.getUserInstance());
 
         testData.setClassIndex(testData.numAttributes() - 1);
@@ -64,16 +62,16 @@ public class LoanController {
 
         eval.evaluateModel(cls, testData);
 
-
+/*
         if (eval.predictions().get(0).predicted() == 0.0) {
             response = new PredictionResponse("Yes", ((NominalPrediction) eval.predictions().get(0)).distribution()[0] * 100);
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response,HttpStatus.OK);
         } else if (eval.predictions().get(0).predicted() == 1.0) {
             response = new PredictionResponse("No", ((NominalPrediction) eval.predictions().get(0)).distribution()[1] * 100);
-            return ResponseEntity.ok(response);
-        }
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }*/
 
-        return ResponseEntity.badRequest().body(new PredictionResponse("badRequest",0.0));
+        return new ResponseEntity<>(new PredictionResponse("Unknown",0.0),HttpStatus.BAD_REQUEST);
     }
 
 

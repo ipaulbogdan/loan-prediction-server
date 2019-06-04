@@ -24,11 +24,12 @@ public class LoanController {
     private Instances trainingData,testData;
     private Classifier cls = new RandomTree();
     private Evaluation eval;
+    private int predictionsCount=0;
 
 
 
     @PostConstruct
-    public ResponseEntity<String> loadData() {
+    public String loadData() {
 
         try {
             DataSource src = new DataSource("loanPrediction.arff");
@@ -40,11 +41,13 @@ public class LoanController {
 
             eval = new Evaluation(trainingData);
         }catch (Exception e){
-            return new ResponseEntity<>("Failed to load data set", HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("\n\tLoading the data set failed!\n");
+            return "Failure";
         }
 
 
-        return new ResponseEntity<>("Data set loaded successfully",HttpStatus.OK);
+        System.out.println("\n\tData set loaded successfully\n");
+        return "Success";
     }
 
 
@@ -62,16 +65,18 @@ public class LoanController {
 
         eval.evaluateModel(cls, testData);
 
-/*
-        if (eval.predictions().get(0).predicted() == 0.0) {
-            response = new PredictionResponse("Yes", ((NominalPrediction) eval.predictions().get(0)).distribution()[0] * 100);
-            return new ResponseEntity<>(response,HttpStatus.OK);
-        } else if (eval.predictions().get(0).predicted() == 1.0) {
-            response = new PredictionResponse("No", ((NominalPrediction) eval.predictions().get(0)).distribution()[1] * 100);
-            return new ResponseEntity<>(response,HttpStatus.OK);
-        }*/
 
-        return new ResponseEntity<>(new PredictionResponse("Unknown",0.0),HttpStatus.BAD_REQUEST);
+        if (eval.predictions().get(predictionsCount).predicted() == 0.0) {
+            response = new PredictionResponse("Yes", ((NominalPrediction) eval.predictions().get(predictionsCount)).distribution()[0] * 100);
+            predictionsCount++;
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        } else if (eval.predictions().get(predictionsCount).predicted() == 1.0) {
+            response = new PredictionResponse("No", ((NominalPrediction) eval.predictions().get(predictionsCount)).distribution()[1] * 100);
+            predictionsCount++;
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 

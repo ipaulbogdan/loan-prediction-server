@@ -53,7 +53,8 @@ public class User {
         inst.setValue(6,coIncome);
         inst.setValue(7,loanAmount);
         inst.setValue(8,loanTerm);
-        inst.setValue(9,creditHistory);
+        if(creditHistory >=0)
+            inst.setValue(9,creditHistory);
         inst.setValue(10,area);
 
         return inst;

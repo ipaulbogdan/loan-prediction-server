@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.NominalPrediction;
+import weka.classifiers.trees.RandomForest;
 import weka.classifiers.trees.RandomTree;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -17,12 +18,14 @@ import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
 import javax.annotation.PostConstruct;
 
+
 @CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/loan")
 @RestController
 public class LoanController {
 
     private Instances trainingData,testData;
-    private Classifier cls = new RandomTree();
+    private Classifier cls = new RandomForest();
     private Evaluation eval;
     private int predictionsCount=0;
 
